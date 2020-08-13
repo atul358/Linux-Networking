@@ -1,0 +1,63 @@
+# Define a new network
+- hosts: localhost
+  become: true
+  vars_files:
+    - ../vars/VM_details.yml
+  tasks:
+
+        
+    - name: create new image 
+      command: >
+              virt-builder --format qcow2 centos-7.4 -o {{ img_location }}{{ item.vmName }}.img --size {{ item.mem }}  --install {{ item.packages }} --root-password password:{{ item.pwd }} --firstboot-command 'dhclient eth0' --update --selinux-relabel -v -x
+      loop: "{{ guests }}"
+      when:  item.img == 'true' and item.already_present == 'False'
+      become: yes
+
+
+    - name: create_duplicate image1
+      command: cp {{ ref_img_location }}VM_q5-1.img {{ img_location }}{{ item.vmName }}.img
+      loop: "{{ guests }}"
+      when: item.img == 'false' and item.already_present == 'False'
+
+    - name: make_xml_ready
+      command: python {{ path_to_py }} {{ item.vmName }} {{ item.mac }} {{ item.ram }} {{ item.cpus }} {{ item.numOfNet }} {{ item.netName }} {{ item.netMac }} {{ item.pci }} {{ item.isOvs }} {{ item.interface }}
+      loop: "{{ guests }}"
+      become: yes
+      when: item.already_present == 'False'
+
+    - name: define vm
+      virt:
+        name: "{{ item.vmName }}"
+        command: define
+        xml: "{{ lookup('template', '/etc/libvirt/qemu/{{ item.vmName }}.xml') }}"
+        uri: "qemu:///system"
+      loop: "{{ guests }}"
+      when: item.already_present == 'False'
+
+
+      #- name: createDisk space
+      #command:  qemu-img resize {{ img_location }}{{ item.vmName }}.img {{ item.mem }}
+      #  - "{{ guests.VM1 }}"
+      #  - "{{ guests.VM2 }}"
+      #loop: "{{ guests }}"
+        
+      #- name: install iperf and wireshark
+      #command: virt-customize -a {{ img_location }}{{ item.vmName }}.img --install {{ item.packages }} 
+      #loop: "{{ guests }}"
+
+    - name: define vm
+      virt:
+        name: "{{ item.vmName }}"
+        command: define
+        xml: "{{ lookup('template', '/etc/libvirt/qemu/{{ item.vmName }}.xml') }}"
+        uri: "qemu:///system"
+      loop: "{{ guests }}"
+      when: item.already_present == 'False'
+
+
+    - name: start vm
+      virt:
+        name: "{{ item.vmName }}"
+        state: running
+      loop: "{{ guests }}"
+      when: item.already_present == 'False'

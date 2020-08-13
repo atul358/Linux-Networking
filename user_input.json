@@ -1,0 +1,91 @@
+{
+	"Tenant": 
+	[
+		{
+		"id": "10.5.5.5",
+		"routes":[
+			{
+			"vpcs_subnet":[{"subnet_start":"192.168.1.1","subnet_end":"192.168.1.255","name":"subnet_t1_v1_s1"},{"subnet_start":"192.168.2.1","subnet_end":"192.168.2.255","name":"subnet_t1_v1_s2"}],
+			"vpcs_vm":[{
+			"vmName":"T1_v1_VM1",
+			"ram":"2",
+			"cpus":"4",
+			"mem":"12G",
+			"external":{"supported":"False","persistent":"yes","backup":"yes","storage":"10G"},
+			"numOfNet":"2",
+			"netName":"subnet_t1_v1_s2,subnet_t1_v1_s1",
+			"pci":"0x09,0x10",
+			"packages":"wireshark-gnome,iperf3",
+			"pwd":"root"
+			},
+	{
+			"vmName":"T1_v1_VM2",
+                        "ram":"2",
+                        "cpus":"4",
+                        "mem":"12G",
+                        "external":{"supported":"False","persistent":"yes","backup":"yes","storage":"10G"},
+                        "numOfNet":"2",
+                        "netName":"subnet_t1_v1_s2,subnet_t1_v1_s1",
+                        "pci":"0x09,0x10",
+                        "packages":"wireshark-gnome,iperf3",
+                        "pwd":"root"
+
+				
+			}
+			]},
+			{"vpcs_subnet":[{"subnet_start":"192.168.2.1","subnet_end":"192.168.2.255","name":"subnet_t1_v2_s1"},{"subnet_start":"192.168.1.1","subnet_end":"192.168.1.255","name":"subnet_t1_v2_s2"}],
+"vpcs_vm":[{
+			"vmName":"T1_v2_VM1",
+                        "ram":"2",
+                        "cpus":"4",
+                        "mem":"12G",
+                        "external":{"supported":"False","persistent":"yes","backup":"yes","storage":"10G"},
+                        "numOfNet":"2",
+                        "netName":"subnet_t1_v2_s2,subnet_t1_v2_s1",
+                        "pci":"0x09,0x10",
+                        "packages":"wireshark-gnome,iperf3",
+                        "pwd":"root"
+
+
+		}				
+			]
+		
+			}
+		]
+		},
+		{	
+		"id":"",
+		"routes":[{
+                        	"vpcs_subnet":[{"subnet_start":"192.168.1.1","subnet_end":"192.168.1.255","name":"subnet_t2_v1_s1"},{"subnet_start":"192.168.2.1","subnet_end":"192.168.2.255","name":"subnet_t2_v1_s2"}],
+"vpcs_vm":[{
+			"vmName":"T2_v1_VM2",
+                        "ram":"2",
+                        "cpus":"4",
+                        "mem":"12G",
+                        "external":{"supported":"False","persistent":"yes","backup":"yes","storage":"10G"},
+                        "numOfNet":"2",
+                        "netName":"subnet_t2_v1_s1,subnet_t2_v1_s2",
+                        "pci":"0x09,0x10",
+                        "packages":"wireshark-gnome,iperf3",
+                        "pwd":"root"
+
+		},
+		{
+			"vmName":"T2_v1_VM1",
+                        "ram":"2",
+                        "cpus":"4",
+                        "mem":"12G",
+                        "external":{"supported":"False","persistent":"yes","backup":"yes","storage":"10G"},
+                        "numOfNet":"2",
+                        "netName":"subnet_t2_v1_s1,subnet_t2_v1_s2",
+                        "pci":"0x09,0x10",
+                        "packages":"wireshark-gnome,iperf3",
+                        "pwd":"root"
+		}]
+		}
+
+			]
+		}
+	]
+		
+}

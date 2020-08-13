@@ -1,0 +1,62 @@
+# Define a new network
+- hosts: localhost
+  become: true
+  vars_files:
+   - ../vars/net_details.yml
+  tasks:
+
+    - name: create linux bridge
+      command: brctl addbr {{ item.bridgename }}
+      loop: "{{ Networks }}"
+      when: item.isOvs == 'notOvs' and item.forwardMode == 'bridge' and item.already_present == 'False'
+
+
+    - name: create ovs bridge
+      command: ovs-vsctl add-br {{ item.bridgename }}
+      loop: "{{ Networks }}"
+      when: item.isOvs == 'Ovs' and item.already_present == 'False'
+
+
+    - name: bring bridge up
+      command: ip link set dev {{ item.bridgename }} up
+      loop: "{{ Networks }}"
+      when: item.isOvs == 'Ovs' or item.forwardMode == 'bridge' and item.already_present == 'False'
+
+    - name: create xml for network creation bridge
+      command: python {{ python_path }} {{ item.name }} {{ item.forwardMode }} {{ item.bridgename }} {{ item.isOvs }}
+      loop: "{{ Networks }}"
+      when: item.forwardMode == 'bridge' and item.already_present == 'False'
+
+
+    - name: add port to ovs bridge
+      command: ovs-vsctl add-port {{ item.bridgename }} {{ item.interface }}
+      loop: "{{ Networks }}"
+      when: item.isOvs == 'Ovs' and item.forwardMode != 'bridge' and item.already_present == 'False'
+
+
+    - name: bring bridge up
+      command: ip link set dev {{ item.interface }} up
+      loop: "{{ Networks }}"
+      when: item.isOvs == 'Ovs' or item.forwardMode == 'bridge' and item.already_present == 'False'
+    
+      #- name: assign ip to ovs-bridge
+      #command: ip netns exec {{ item.namespace }} ip addr add {{ item.subnet_address }} dev {{ item.interface2 }}
+      #loop: "{{ Networks }}"
+      #when: item.isOvs == 'Ovs' and item.forwardMode != 'bridge' and item.already_present == 'False'
+
+      #- name: bring bridge up
+      #command: ip netns exec {{ item.namespace }} ip link set dev {{ item.interface2 }} up
+      #loop: "{{ Networks }}"
+      #when: item.isOvs == 'Ovs' or item.forwardMode == 'bridge' and item.already_present == 'False'
+    
+    - name: run dnsmasq on ovs bridge for dhcp
+      command: ip netns exec {{ item.namespace }} dnsmasq --interface {{ item.interface2 }} --except-interface=lo --bind-interfaces --dhcp-range={{ item.dhcp_range }}
+      loop: "{{ Networks }}"
+      when: item.isOvs == 'Ovs' and item.forwardMode != 'bridge' and item.already_present == 'False'
+
+
+
+    - name: nat mode ovs
+      command: iptables -t nat -A POSTROUTING -s {{ item.subnet_address }} -j MASQUERADE
+      loop: "{{ Networks }}"
+      when: item.isOvs == 'Ovs' and item.forwardMode == 'nat' and item.already_present == 'False'

@@ -1,0 +1,31 @@
+{
+	"namespace_router":
+	[{
+		"name": "provider_Network",
+		"vethpair_name": "inf_pprovider",
+		"infip": "10.10.1.1/24"
+
+	},
+	{
+		"name": "vpc_router",
+                "vethpair_name": "inf_vvpc",
+		"vethpair_connect_subrouter": "vpcsub",
+                "infip": "10.10.1.2/24",
+		"subrouip": "11.11.1.1"
+	},
+	{
+		"name": "subnet_router",
+		"vethpair_connect_subrouter": "subvpc",
+		"subrouip": "11.11.1.2",
+		"vethpair_connect_bridge": "snRoute"
+
+	},
+	{
+		"name": "sub_bridge",
+                "vethpair_connect_bridge": "bridge1"
+	}
+
+	]
+
+
+}

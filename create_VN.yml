@@ -1,0 +1,60 @@
+# Define a new network
+- hosts: localhost
+  become: true
+  vars_files:
+    - ../vars/VM_details.yml
+  tasks:
+          #- name: create bridge
+      #openvswitch_bridge:
+              #bridge: br-int4
+              #state: present
+              #args:
+              #  external_ids:
+              #        bridge-id: br-int4
+
+    - name: create_duplicate image1
+      command: cp /var/lib/libvirt/images/VM_q5-1.img /var/lib/libvirt/images/{{ item.vmName }}.img
+      with_items:
+        - "{{ q2VM }}"
+        - "{{ q2VM }}"
+
+
+    - name: list
+      command: ls -lrt /var/lib/libvirt/images
+
+    - name: make_xml_ready
+      command: python /home/ece792/homework3/Q2/edit_xml_intel.py {{ item.vmName }} {{ item.mac }} {{ item.ram }} {{ item.cpus }} {{ item.numOfNet }} {{ item.netName }} {{ item.netMac }} {{ item.pci }} {{ item.isOvs }}
+      #      with_items: 
+      #  - "{{ q2VM.VM1 }}"
+      #  - "{{ q2VM.VM2 }}"
+      loop: "{{ q2VM }}"
+
+    - name: define vm
+      virt:
+        name: "{{ item.vmName }}"
+        command: define
+        xml: "{{ lookup('template', '/etc/libvirt/qemu/{{ item.vmName }}.xml') }}"
+        uri: "qemu:///system"
+        #with_items:
+        #- "{{ q2VM.VM1 }}"
+        #- "{{ q2VM.VM2 }}"
+      loop: "{{ q2VM }}"
+
+
+    - name: createDisk space
+      command:  qemu-img resize /var/lib/libvirt/images/{{ item.vmName }}.img +2G
+      #with_items:
+      #  - "{{ q2VM.VM1 }}"
+      #  - "{{ q2VM.VM2 }}"
+      loop: "{{ q2VM }}"
+
+
+    - name: start vm
+      virt:
+        name: "{{ item.vmName }}"
+        state: running
+        #with_items:
+        #- "{{ q2VM.VM1 }}"
+        #- "{{ q2VM.VM2 }}"
+      loop: "{{ q2VM }}"
+

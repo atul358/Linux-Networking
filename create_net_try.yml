@@ -1,0 +1,41 @@
+# Define a new network
+- hosts: localhost
+  become: true
+  vars_files:
+   - ../vars/net_details.yml
+  tasks:
+          #- name: create bridge
+      #openvswitch_bridge:
+              #bridge: br-int4
+              #state: present
+              #args:
+              #  external_ids:
+              #        bridge-id: br-int4
+
+
+    - name: create xml for network creation
+      command: python /home/ece792/homework3/Q2/network_create_modify.py {{ item.name }} {{ item.forwardMode }} {{ item.bridgename }} {{ item.isOvs }} {{  item.netMac }} {{ item.iprange }}
+      #with_items: 
+      # - "{{ try.Net1 }}"
+      # - "{{ try.Net2 }}"
+      loop: "{{ try }}"
+    - name: define a network
+      virt_net:
+              command: define
+              name: q2Net1
+              xml: '{{ lookup("template", "/etc/libvirt/qemu/networks/{{ item.name }}.xml") }}'
+              #with_items:
+              #- "{{ try.Net1 }}"
+              #- "{{ try.Net2 }}"
+      loop: "{{ try }}"
+
+    - name: Create network
+      virt_net:
+            command: create
+            name: "{{ item.name }}"
+            #with_items:
+            #- "{{ try.Net1 }}"
+            #- "{{ try.Net2 }}"
+      loop: "{{ try }}"
+
+

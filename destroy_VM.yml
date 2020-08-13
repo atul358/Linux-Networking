@@ -1,0 +1,11 @@
+# Define a new network
+- hosts: localhost
+  become: true
+  vars_files:
+    - ../vars/VM_details.yml
+  tasks:
+          - name: destroy vm
+            virt:
+                    name: "{{ item.vmName }}" 
+                    command: destroy
+            loop: "{{ guests }}"

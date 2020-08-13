@@ -1,0 +1,35 @@
+# Define a new network
+- hosts: localhost
+  become: true
+  vars_files:
+   - ../vars/net_details.yml
+  tasks:
+
+
+    - name: create xml for network creation bridge
+      command: python {{ python_path }} {{ item.name }} {{ item.forwardMode }} {{ item.bridgename }} {{ item.isOvs }}
+      loop: "{{ Networks }}"
+      when: item.forwardMode == 'bridge' and item.already_present == 'False'
+
+    - name: create xml for network creation not bridge
+      command: python {{ python_path }} {{ item.name }} {{ item.forwardMode }} {{ item.bridgename }} {{ item.isOvs }} {{  item.netMac }} {{ item.iprange }}
+      loop: "{{ Networks }}"
+      when: item.forwardMode != 'bridge' and item.already_present == 'False'
+
+
+
+    - name: define a network
+      virt_net:
+              command: define
+              name: "{{ item.name }}"
+              xml: '{{ lookup("template", "{{ net_img }}{{ item.name }}.xml") }}'
+      loop: "{{ Networks }}"
+      when: item.already_present == 'False'
+
+    - name: Create network
+      virt_net:
+            command: create
+            name: "{{ item.name }}"
+      loop: "{{ Networks }}"
+      when: item.already_present == 'False'
+
